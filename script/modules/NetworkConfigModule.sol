@@ -19,29 +19,14 @@ library NetworkConfigModule {
      * @param chainId The EVM chain ID to resolve config for.
      * @return config The token deployment configuration for the chain.
      */
-    function defaultConfig(uint256 chainId)
-        internal
-        pure
-        returns (TokenDeployConfig memory config)
-    {
+    function defaultConfig(uint256 chainId) internal pure returns (TokenDeployConfig memory config) {
         if (chainId == CHAIN_ID_MAINNET) {
             return
-                TokenDeployConfig({
-                    name: "VeriTok Era",
-                    symbol: "VRT_E",
-                    decimals: 18,
-                    initialSupply: 1_000_000 ether
-                });
+                TokenDeployConfig({name: "VeriTok Era", symbol: "VRT_E", decimals: 18, initialSupply: 1_000_000 ether});
         }
 
         if (chainId == CHAIN_ID_SEPOLIA) {
-            return
-                TokenDeployConfig({
-                    name: "VeriTok",
-                    symbol: "VRT",
-                    decimals: 18,
-                    initialSupply: 1_000_000 ether
-                });
+            return TokenDeployConfig({name: "VeriTok", symbol: "VRT", decimals: 18, initialSupply: 1_000_000 ether});
         }
 
         revert UnsupportedChainId(chainId);

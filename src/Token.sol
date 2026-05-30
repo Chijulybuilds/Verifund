@@ -44,12 +44,7 @@ contract SecureERC223Token is IERC223, Ownable {
                             CONSTRUCTOR
     //////////////////////////////////////////////////////////////*/
 
-    constructor(
-        string memory name_, 
-        string memory symbol_, 
-        uint8 decimals_, 
-        uint256 initialSupply
-        )
+    constructor(string memory name_, string memory symbol_, uint8 decimals_, uint256 initialSupply)
         Ownable(msg.sender)
     {
         _tokenName = name_;
@@ -131,13 +126,12 @@ contract SecureERC223Token is IERC223, Ownable {
      * @notice Transfers tokens from one address to another
      * @param tokenOwner The address of the owner of the tokens
      * @param spender The address allowed to spend token
-     
+     *
      */
 
     function allowance(address tokenOwner, address spender) external view override returns (uint256) {
         return _allowances[tokenOwner][spender];
     }
-
 
     /**
      * @notice Transfers tokens from one address to another
@@ -147,10 +141,9 @@ contract SecureERC223Token is IERC223, Ownable {
      */
 
     function transferFrom(address from, address to, uint256 amount) external override returns (bool) {
-
         // the current amount approved to be spent and should be greater than amount sent
         uint256 currentAllowance = _allowances[from][msg.sender];
-        
+
         // checks if amount approved for the spender is sufficient
         if (currentAllowance < amount) {
             revert InsufficientAllowance();

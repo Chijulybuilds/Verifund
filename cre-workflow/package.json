@@ -1,0 +1,14 @@
+{
+  "name": "verifund-cre",
+  "version": "1.0.0",
+  "scripts": {
+    "simulate": "cre workflow simulate",
+    "deploy": "cre workflow deploy",
+    "activate": "cre workflow activate"
+  },
+  "dependencies": {
+    "@chainlink/cre-sdk": "^1.0.0",
+    "axios": "^1.7.0",
+    "ethers": "^6.13.0"
+  }
+}

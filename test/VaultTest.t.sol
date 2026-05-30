@@ -2,18 +2,27 @@
 
 pragma solidity ^0.8.18;
 
-/** 
-* @title Vault Test
-* @author Prince_Chinedu
-*/
+/**
+ * @title Vault Test
+ * @author Prince_Chinedu
+ */
 
 import {Test} from "forge-std/Test.sol";
-import {VerifundBasicVault, Vault__AmountMustBeGreaterThanZero, Vault__OnlySupportedToken, Vault__InsufficientShareBalance, Vault__TransferFailed, Vault__ReentrantCall, Vault__ZeroTokenAddress, Vault__TokenMustBeContract} from "../src/Vault.sol";
+import {
+    VerifundBasicVault,
+    Vault__AmountMustBeGreaterThanZero,
+    Vault__OnlySupportedToken,
+    Vault__InsufficientShareBalance,
+    Vault__TransferFailed,
+    Vault__ReentrantCall,
+    Vault__ZeroTokenAddress,
+    Vault__TokenMustBeContract
+} from "../src/Vault.sol";
 import {SecureERC223Token} from "../src/Token.sol";
 import {IERC223} from "../lib/Token-contracts/IERC223.sol";
 import {IERC223Recipient} from "../lib/Token-contracts/IERC223Recipient.sol";
-import {HelperConfigVault} from "../script/HelperConfigVault.s.sol";
-import {DeployVault} from "../script/DeployVault.s.sol";
+import {HelperConfigVault} from "../script/HelperConfigScript/HelperConfigVault.s.sol";
+import {DeployVault} from "../script/DeployScripts/DeployVault.s.sol";
 import {NetworkConfigModule} from "../script/modules/NetworkConfigModule.sol";
 import {MockTokenReturnFalse} from "../lib/mocks/MockTokenReturnFalse.sol";
 import {MockReentrantERC223} from "../lib/mocks/MockReentrantERC223.sol";
@@ -104,7 +113,7 @@ contract VaultTest is Test {
                          TESTING VAULT WITHDRAW
     //////////////////////////////////////////////////////////////*/
 
-    function testFuzzWithdrawAccounting(uint256 depositAmount, uint256 withdrawAmount) external{
+    function testFuzzWithdrawAccounting(uint256 depositAmount, uint256 withdrawAmount) external {
         depositAmount = bound(depositAmount, 1, INITIAL_SUPPLY);
         token.transfer(alice, depositAmount);
 
@@ -135,7 +144,7 @@ contract VaultTest is Test {
         vault.withdraw(0);
     }
 
-    function testFuzzWithdrawRevertsForInsufficientShareBalance(uint256 amount) external{
+    function testFuzzWithdrawRevertsForInsufficientShareBalance(uint256 amount) external {
         amount = bound(amount, 1, type(uint128).max);
         vm.prank(alice);
         vm.expectRevert(Vault__InsufficientShareBalance.selector);
@@ -157,7 +166,7 @@ contract VaultTest is Test {
         falseVault.withdraw(1 ether);
     }
 
-    function testMockTokenReturnFalseMetadataAndStateViews() external  {
+    function testMockTokenReturnFalseMetadataAndStateViews() external {
         MockTokenReturnFalse falseToken = new MockTokenReturnFalse();
 
         assertEq(falseToken.name(), "FalseToken");
@@ -174,7 +183,7 @@ contract VaultTest is Test {
         address to,
         uint256 amount,
         bytes memory data
-    ) external{
+    ) external {
         vm.assume(data.length <= 128);
 
         MockTokenReturnFalse falseToken = new MockTokenReturnFalse();
@@ -193,7 +202,7 @@ contract VaultTest is Test {
         assertEq(falseToken.balanceOf(owner), 0);
     }
 
-     /*//////////////////////////////////////////////////////////////
+    /*//////////////////////////////////////////////////////////////
                        TESTING MOCKREENTRANTERC223
     //////////////////////////////////////////////////////////////*/
 
@@ -234,10 +243,7 @@ contract VaultTest is Test {
         assertEq(reentrantToken.balanceOf(bob), 0);
     }
 
-    function testFuzzMockReentrantERC223TransferWithoutData(
-        uint256 mintAmount,
-        uint256 transferAmount
-    ) external {
+    function testFuzzMockReentrantERC223TransferWithoutData(uint256 mintAmount, uint256 transferAmount) external {
         mintAmount = bound(mintAmount, 1, INITIAL_SUPPLY);
         transferAmount = bound(transferAmount, 1, mintAmount);
 
@@ -252,11 +258,9 @@ contract VaultTest is Test {
         assertEq(reentrantToken.balanceOf(bob), transferAmount);
     }
 
-    function testFuzzMockReentrantERC223TransferWithData(
-        uint256 mintAmount,
-        uint256 transferAmount,
-        bytes memory data
-    ) external {
+    function testFuzzMockReentrantERC223TransferWithData(uint256 mintAmount, uint256 transferAmount, bytes memory data)
+        external
+    {
         vm.assume(data.length <= 128);
         mintAmount = bound(mintAmount, 1, INITIAL_SUPPLY);
         transferAmount = bound(transferAmount, 1, mintAmount);
@@ -321,8 +325,8 @@ contract VaultTest is Test {
         MockReentrantERC223 mainnetToken = new MockReentrantERC223();
         vm.setEnv("MAINNET_TOKEN_ADDRESS", vm.toString(address(mainnetToken)));
 
-        HelperConfigVault.VaultDeployConfig memory config = helperConfigVault
-            .getNetworkConfigByChainId(NetworkConfigModule.CHAIN_ID_MAINNET);
+        HelperConfigVault.VaultDeployConfig memory config =
+            helperConfigVault.getNetworkConfigByChainId(NetworkConfigModule.CHAIN_ID_MAINNET);
 
         assertEq(config.tokenAddress, address(mainnetToken));
     }
@@ -331,8 +335,8 @@ contract VaultTest is Test {
         MockReentrantERC223 sepoliaToken = new MockReentrantERC223();
         vm.setEnv("SEPOLIA_TOKEN_ADDRESS", vm.toString(address(sepoliaToken)));
 
-        HelperConfigVault.VaultDeployConfig memory config = helperConfigVault
-            .getNetworkConfigByChainId(NetworkConfigModule.CHAIN_ID_SEPOLIA);
+        HelperConfigVault.VaultDeployConfig memory config =
+            helperConfigVault.getNetworkConfigByChainId(NetworkConfigModule.CHAIN_ID_SEPOLIA);
 
         assertEq(config.tokenAddress, address(sepoliaToken));
     }
@@ -341,9 +345,7 @@ contract VaultTest is Test {
         vm.assume(chainId != NetworkConfigModule.CHAIN_ID_MAINNET);
         vm.assume(chainId != NetworkConfigModule.CHAIN_ID_SEPOLIA);
 
-        vm.expectRevert(
-            abi.encodeWithSelector(NetworkConfigModule.UnsupportedChainId.selector, chainId)
-        );
+        vm.expectRevert(abi.encodeWithSelector(NetworkConfigModule.UnsupportedChainId.selector, chainId));
         helperConfigVault.getNetworkConfigByChainId(chainId);
     }
 
@@ -355,8 +357,7 @@ contract VaultTest is Test {
         vm.setEnv("SEPOLIA_TOKEN_ADDRESS", vm.toString(address(baseToken)));
         vm.setEnv("VAULT_TOKEN_ADDRESS", vm.toString(address(overrideToken)));
 
-        HelperConfigVault.VaultDeployConfig memory config = helperConfigVault
-            .getActiveNetworkConfig();
+        HelperConfigVault.VaultDeployConfig memory config = helperConfigVault.getActiveNetworkConfig();
 
         assertEq(config.tokenAddress, address(overrideToken));
     }
@@ -369,8 +370,8 @@ contract VaultTest is Test {
         vm.setEnv("MAINNET_TOKEN_ADDRESS", vm.toString(address(baseToken)));
         vm.setEnv("DEPLOY_X_VAULT_TOKEN_ADDRESS", vm.toString(address(overrideToken)));
 
-        HelperConfigVault.VaultDeployConfig memory config = helperConfigVault
-            .getActiveNetworkConfigWithPrefix("DEPLOY_X");
+        HelperConfigVault.VaultDeployConfig memory config =
+            helperConfigVault.getActiveNetworkConfigWithPrefix("DEPLOY_X");
 
         assertEq(config.tokenAddress, address(overrideToken));
     }
@@ -383,10 +384,7 @@ contract VaultTest is Test {
         vm.setEnv("VAULT_TOKEN_ADDRESS", vm.toString(invalidTokenAddress));
 
         vm.expectRevert(
-            abi.encodeWithSelector(
-                HelperConfigVault.InvalidVaultTokenAddress.selector,
-                invalidTokenAddress
-            )
+            abi.encodeWithSelector(HelperConfigVault.InvalidVaultTokenAddress.selector, invalidTokenAddress)
         );
         helperConfigVault.getActiveNetworkConfig();
     }
@@ -421,9 +419,7 @@ contract VaultTest is Test {
         vm.setEnv("VAULT_DEPLOY_VAULT_TOKEN_ADDRESS", vm.toString(address(prefixedToken)));
 
         DeployVault deployVault = new DeployVault();
-        address resolvedByDeployScript = deployVault.resolvedTokenAddressForRunWithPrefix(
-            "VAULT_DEPLOY"
-        );
+        address resolvedByDeployScript = deployVault.resolvedTokenAddressForRunWithPrefix("VAULT_DEPLOY");
         VerifundBasicVault deployedVault = deployVault.runWithEnvPrefix("VAULT_DEPLOY");
 
         assertEq(resolvedByDeployScript, address(prefixedToken));

@@ -5,8 +5,8 @@ import {Test} from "forge-std/Test.sol";
 import {SecureERC223Token} from "../src/Token.sol";
 import {IERC223Recipient} from "../lib/Token-contracts/IERC223Recipient.sol";
 import {Ownable} from "../lib/Token-contracts/Ownable.sol";
-import {DeployToken} from "../script/DeployToken.s.sol";
-import {HelperConfig} from "../script/HelperConfigToken.s.sol";
+import {DeployToken} from "../script/DeployScripts/DeployToken.s.sol";
+import {HelperConfig} from "../script/HelperConfigScript/HelperConfigToken.s.sol";
 import {NetworkConfigModule} from "../script/modules/NetworkConfigModule.sol";
 
 contract GoodRecipient is IERC223Recipient {
@@ -22,11 +22,7 @@ contract GoodRecipient is IERC223Recipient {
      * @param _data Arbitrary transfer payload.
      */
 
-    function tokenReceived(
-        address _from,
-        uint256 _value,
-        bytes calldata _data
-    ) public override {
+    function tokenReceived(address _from, uint256 _value, bytes calldata _data) public override {
         lastFrom = _from;
         lastValue = _value;
         lastData = _data;
@@ -35,19 +31,13 @@ contract GoodRecipient is IERC223Recipient {
 }
 
 contract RevertingRecipient is IERC223Recipient {
-
     /**
      * @notice Always reverts to simulate an unsafe recipient.
      * @param _from The original transfer sender (unused).
      * @param _value The token amount transferred (unused).
      * @param _data The transfer payload (unused).
      */
-
-    function tokenReceived(
-        address _from,
-        uint256 _value,
-        bytes calldata _data
-    ) public pure override {
+    function tokenReceived(address _from, uint256 _value, bytes calldata _data) public pure override {
         _from;
         _value;
         _data;
@@ -76,31 +66,25 @@ contract TokenTest is Test {
      * @notice Initializes test contracts and deterministic EOA-like addresses.
      */
     function setUp() public {
-
-        /** 
-        * @dev creates unique addresses to the individuals
+        /**
+         * @dev creates unique addresses to the individuals
          */
         alice = vm.addr(11);
         bob = vm.addr(12);
         charlie = vm.addr(13);
 
-        /** 
-        * @dev checks if the addresses are already deployed with code 
-            and if yes will be reset to an empty code by the vm.etch
+        /**
+         * @dev checks if the addresses are already deployed with code
+         *     and if yes will be reset to an empty code by the vm.etch
          */
         if (alice.code.length != 0) vm.etch(alice, hex"");
         if (bob.code.length != 0) vm.etch(bob, hex"");
         if (charlie.code.length != 0) vm.etch(charlie, hex"");
 
-        /** 
-        * @dev deploys a new secure ERC223 token                                                                                                                                                                                                                                                                                            
+        /**
+         * @dev deploys a new secure ERC223 token
          */
-        token = new SecureERC223Token(
-            DEFAULT_NAME,
-            DEFAULT_SYMBOL,
-            DEFAULT_DECIMALS,
-            DEFAULT_SUPPLY
-        );
+        token = new SecureERC223Token(DEFAULT_NAME, DEFAULT_SYMBOL, DEFAULT_DECIMALS, DEFAULT_SUPPLY);
         helperConfig = new HelperConfig();
     }
 
@@ -119,7 +103,6 @@ contract TokenTest is Test {
         assertEq(token.balanceOf(address(this)), DEFAULT_SUPPLY);
     }
 
-    
     /**
      * @notice Fuzzes constructor inputs for storage integrity.
      * @param name_ Fuzzed token name.
@@ -133,12 +116,7 @@ contract TokenTest is Test {
         uint8 decimals_,
         uint256 supply_
     ) public {
-        SecureERC223Token t = new SecureERC223Token(
-            name_,
-            symbol_,
-            decimals_,
-            supply_
-        );
+        SecureERC223Token t = new SecureERC223Token(name_, symbol_, decimals_, supply_);
 
         assertEq(t.name(), name_);
         assertEq(t.symbol(), symbol_);
@@ -172,10 +150,7 @@ contract TokenTest is Test {
      * @param amount Fuzzed transfer amount.
      * @param data Fuzzed transfer metadata.
      */
-    function testFuzzTransferWithDataToRecipient(
-        uint256 amount,
-        bytes memory data
-    ) public {
+    function testFuzzTransferWithDataToRecipient(uint256 amount, bytes memory data) public {
         amount = bound(amount, 0, DEFAULT_SUPPLY);
         GoodRecipient recipient = new GoodRecipient();
 
@@ -230,7 +205,7 @@ contract TokenTest is Test {
         token.transfer(address(recipient), 1 ether);
     }
 
-     /*//////////////////////////////////////////////////////////////
+    /*//////////////////////////////////////////////////////////////
                       TESTING TOKEN OWNER APPROVAL
     //////////////////////////////////////////////////////////////*/
 
@@ -244,9 +219,10 @@ contract TokenTest is Test {
         bool ok = token.approve(spender, amount);
         assertTrue(ok);
 
-        /** @dev maps from the contract address to the approved 
-            spender's address which maps to the approved amount 
-        */
+        /**
+         * @dev maps from the contract address to the approved
+         *     spender's address which maps to the approved amount
+         */
         assertEq(token.allowance(address(this), spender), amount);
     }
 
@@ -357,8 +333,7 @@ contract TokenTest is Test {
      */
 
     function testHelperConfigMainnetDefaults() public view {
-        NetworkConfigModule.TokenDeployConfig memory cfg = helperConfig
-            .getNetworkConfigByChainId(MAINNET_ID);
+        NetworkConfigModule.TokenDeployConfig memory cfg = helperConfig.getNetworkConfigByChainId(MAINNET_ID);
 
         assertEq(cfg.name, "VeriTok Era");
         assertEq(cfg.symbol, "VRT_E");
@@ -370,8 +345,7 @@ contract TokenTest is Test {
      * @notice Verifies Sepolia default deployment config.
      */
     function testHelperConfigSepoliaDefaults() public view {
-        NetworkConfigModule.TokenDeployConfig memory cfg = helperConfig
-            .getNetworkConfigByChainId(SEPOLIA_ID);
+        NetworkConfigModule.TokenDeployConfig memory cfg = helperConfig.getNetworkConfigByChainId(SEPOLIA_ID);
 
         assertEq(cfg.name, "VeriTok");
         assertEq(cfg.symbol, "VRT");
@@ -383,9 +357,7 @@ contract TokenTest is Test {
      * @notice Verifies unsupported chains revert with explicit error.
      */
     function testHelperConfigUnsupportedChainReverts() public {
-        vm.expectRevert(
-            abi.encodeWithSelector(NetworkConfigModule.UnsupportedChainId.selector, 31337)
-        );
+        vm.expectRevert(abi.encodeWithSelector(NetworkConfigModule.UnsupportedChainId.selector, 31337));
         helperConfig.getNetworkConfigByChainId(31337);
     }
 
@@ -399,8 +371,7 @@ contract TokenTest is Test {
         vm.setEnv("CFG_A_TOKEN_DECIMALS", "9");
         vm.setEnv("CFG_A_TOKEN_INITIAL_SUPPLY", "4200000000");
 
-        NetworkConfigModule.TokenDeployConfig memory cfg = helperConfig
-            .getActiveNetworkConfigWithPrefix("CFG_A");
+        NetworkConfigModule.TokenDeployConfig memory cfg = helperConfig.getActiveNetworkConfigWithPrefix("CFG_A");
 
         assertEq(cfg.name, "FuzzToken");
         assertEq(cfg.symbol, "FZTK");
@@ -414,9 +385,7 @@ contract TokenTest is Test {
     function testHelperConfigInvalidDecimalsReverts() public {
         vm.chainId(SEPOLIA_ID);
         vm.setEnv("CFG_B_TOKEN_DECIMALS", "256");
-        vm.expectRevert(
-            abi.encodeWithSelector(HelperConfig.InvalidTokenDecimals.selector, 256)
-        );
+        vm.expectRevert(abi.encodeWithSelector(HelperConfig.InvalidTokenDecimals.selector, 256));
         helperConfig.getActiveNetworkConfigWithPrefix("CFG_B");
     }
 

@@ -1,0 +1,131 @@
+Freelancer submits delivery
+        ↓
+Normalize evidence
+        ↓
+Hash evidence
+        ↓
+Store evidence
+        ↓
+delivery.controller.ts
+        ↓
+delivery.routes.ts
+        ↓
+Client disputes
+        ↓
+verifyDispute.ts
+        ↓
+disputeController.ts
+        ↓
+disputeEngine.ts
+        ↓
+githubVerifier.ts
+urlVerifier.ts
+timestampVerifier.ts
+deliverableVerifier.ts
+        ↓
+scoring.ts
+        ↓
+final verdict
+        ↓
+Chainlink Functions callback
+        ↓
+Smart contract settlement
+
+
+
+
+backend/
+│
+├── src/
+│   ├── routes/
+│   │   ├── delivery.routes.ts
+│   │   └── verifyDispute.ts
+│   │
+│   ├── controllers/
+│   │   ├── delivery.controller.ts
+│   │   └── disputeController.ts
+│   │
+│   ├── services/
+│   │   ├── evidenceNormalizer.ts
+│   │   ├── evidenceHasher.ts
+│   │   ├── evidenceStorage.ts
+│   │   │
+│   │   ├── githubVerifier.ts
+│   │   ├── urlVerifier.ts
+│   │   ├── timestampVerifier.ts
+│   │   ├── deliverableVerifier.ts
+│   │   │
+│   │   └── disputeEngine.ts
+│   │
+│   |
+│   │
+│   ├── types/
+│   │   └── delivery.types.ts
+            verification.types.ts
+│   │
+│   └── server.ts
+│
+├── uploads/
+│
+├── package.json
+└── tsconfig.json
+
+
+
+
+
+Verifund/
+│
+├── backend/
+│
+├── src/
+│   ├── routes/
+│   │   ├── delivery.routes.ts
+│   │   └── verifyDispute.ts
+│   │
+│   ├── controllers/
+│   │   ├── delivery.controller.ts
+│   │   └── disputeController.ts
+│   │
+│   ├── services/
+│   │   ├── evidenceNormalizer.ts
+│   │   ├── evidenceHasher.ts
+│   │   ├── evidenceStorage.ts
+│   │   │
+│   │   ├── githubVerifier.ts
+│   │   ├── urlVerifier.ts
+│   │   ├── timestampVerifier.ts
+│   │   ├── deliverableVerifier.ts
+│   │   │
+│   │   └── disputeEngine.ts
+│   │
+│   |
+│   │
+│   ├── types/
+│   │   └── delivery.types.ts
+|   |        verification.types.ts
+│   │
+│   └── server.ts
+│
+├── uploads/
+│-
+├── package.json
+└── tsconfig.json
+|
+│
+├── src/
+│   ├── VerifundEscrow.sol
+│   └── interfaces/
+│
+├── script/
+│   ├── DeployVerifundEscrow.s.sol
+│   ├── HelperConfig.s.sol
+│  
+│
+|
+│
+├── test/
+│
+├── .env
+├── foundry.toml
+└── package.json

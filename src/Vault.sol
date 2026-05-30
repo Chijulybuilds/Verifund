@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.18;
 
-/** 
+/**
  * =============================================================================
  *                             BASIC ERC223 VAULT
  * =============================================================================
@@ -39,7 +39,7 @@ contract VerifundBasicVault is IERC223Recipient {
     /// -----------------------------------------------------------------------
     /// STATE VARIABLES
     /// -----------------------------------------------------------------------
-    /** 
+    /**
      * @notice
      * The ERC223 token accepted by this vault.
      */
@@ -63,7 +63,7 @@ contract VerifundBasicVault is IERC223Recipient {
      */
     uint256 private s_totalShares;
 
-    /** 
+    /**
      * @notice
      * Simple reentrancy lock.
      */
@@ -73,17 +73,9 @@ contract VerifundBasicVault is IERC223Recipient {
     /// EVENTS
     /// -----------------------------------------------------------------------
 
-    event Deposited(
-        address indexed user,
-        uint256 assets,
-        uint256 shares
-    );
+    event Deposited(address indexed user, uint256 assets, uint256 shares);
 
-    event Withdrawn(
-        address indexed user,
-        uint256 assets,
-        uint256 shares
-    );
+    event Withdrawn(address indexed user, uint256 assets, uint256 shares);
 
     /// -----------------------------------------------------------------------
     /// MODIFIERS
@@ -130,17 +122,13 @@ contract VerifundBasicVault is IERC223Recipient {
     /// ERC223 TOKEN RECEIVER
     /// -----------------------------------------------------------------------
 
-    /** 
+    /**
      * @notice
      * @dev tokenreceived() runs automatically when transfer() is called
      * @param from the address of the wallet sending the supported token
      * @param value the total value of token being deposited in the vault
      */
-    function tokenReceived(
-        address from,
-        uint256 value,
-        bytes calldata
-    )
+    function tokenReceived(address from, uint256 value, bytes calldata)
         external
         override
         nonReentrant
@@ -177,17 +165,10 @@ contract VerifundBasicVault is IERC223Recipient {
      * @dev the msg.sender being the address of user who deployed the contract
      * @param amount the amount to be withdrawn from vault to deployers address
      */
-    function withdraw(
-        uint256 amount
-    )
-        external
-        nonReentrant
-        moreThanZero(amount)
-    {
-
-        /** 
-        * @dev sharesToBurn variable reps the share user wants to withdraw
-        * @dev userShares variable reps the share balance of the user
+    function withdraw(uint256 amount) external nonReentrant moreThanZero(amount) {
+        /**
+         * @dev sharesToBurn variable reps the share user wants to withdraw
+         * @dev userShares variable reps the share balance of the user
          */
         uint256 sharesToBurn = _convertToSharesRoundUp(amount);
         uint256 userShares = s_shares[msg.sender];
@@ -208,10 +189,7 @@ contract VerifundBasicVault is IERC223Recipient {
         /// INTERACTIONS
         /// -------------------------------------------------------------------
 
-        bool success = i_token.transfer(
-            msg.sender,
-            amount
-        );
+        bool success = i_token.transfer(msg.sender, amount);
 
         if (!success) {
             revert Vault__TransferFailed();
@@ -224,7 +202,7 @@ contract VerifundBasicVault is IERC223Recipient {
                                CONVERTERS
     //////////////////////////////////////////////////////////////*/
 
-    /** 
+    /**
      * @notice
      * Converts asset amount to shares using current vault exchange rate.
      * @param assets Asset units to convert.
@@ -239,7 +217,7 @@ contract VerifundBasicVault is IERC223Recipient {
         return (assets * s_totalShares) / s_totalAssets;
     }
 
-    /** 
+    /**
      * @notice
      * Converts share amount to assets using current vault exchange rate.
      * @param shares Share units to convert.
@@ -254,7 +232,7 @@ contract VerifundBasicVault is IERC223Recipient {
         return (shares * s_totalAssets) / s_totalShares;
     }
 
-    /** 
+    /**
      * @notice
      * Converts assets to shares rounding up (safety for withdrawals).
      * @param assets Asset units to convert.
@@ -282,7 +260,7 @@ contract VerifundBasicVault is IERC223Recipient {
         return convertToAssets(s_shares[user]);
     }
 
-    /** 
+    /**
      * @notice
      * Returns share balance of a user.
      */
@@ -294,15 +272,11 @@ contract VerifundBasicVault is IERC223Recipient {
      * @notice
      * Returns total deposits tracked by vault.
      */
-    function getTotalAssetDeposits()
-        external
-        view
-        returns (uint256)
-    {
+    function getTotalAssetDeposits() external view returns (uint256) {
         return s_totalAssets;
     }
 
-    /** 
+    /**
      * @notice
      * Returns total shares issued by vault.
      */
@@ -310,19 +284,13 @@ contract VerifundBasicVault is IERC223Recipient {
         return s_totalShares;
     }
 
-    /** 
+    /**
      * @notice
      * Returns actual token balance held by vault.
      *
      * Useful for verifying accounting correctness.
      */
-    function getVaultTokenBalance()
-        external
-        view
-        returns (uint256)
-    {
+    function getVaultTokenBalance() external view returns (uint256) {
         return i_token.balanceOf(address(this));
     }
-
-    
 }

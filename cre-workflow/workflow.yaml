@@ -1,0 +1,25 @@
+trigger:
+  type: "evm_log"
+
+  network: "ethereum-sepolia"
+
+  event:
+    contract: "0xYOUR_ESCROW_CONTRACT"
+
+    signature: "DisputeVerificationRequested(address,bytes32,string)"
+
+actions:
+
+  - name: "verify_dispute"
+
+    run: "./src/workflow.ts"
+
+  - name: "submit_result"
+
+    type: "evm_write"
+
+    network: "ethereum-sepolia"
+
+    contract: "0xYOUR_ESCROW_CONTRACT"
+
+    function: "fulfillDisputeResolution(bool,bytes32)"
